@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Other components
-    private Handler mainHandler;
+    private Handler messageHandler;
     private ConnectedThread connectedThread;
     private BluetoothSocket BTSocket = null;
     private static final UUID BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // "random" unique identifier
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 fail = true;
                                 BTSocket.close();
-                                mainHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
+                                messageHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
                                         .sendToTarget();
                             } catch (IOException e2) {
                                 //insert code to deal with this
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                             connectedThread = new ConnectedThread(BTSocket);
                             connectedThread.start();
 
-                            mainHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
+                            messageHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
                                     .sendToTarget();
                         }
                     }
@@ -172,14 +172,43 @@ public class MainActivity extends AppCompatActivity {
             }
         }));
 
-        mainHandler = new Handler() {
+        //Checking bluetooth messages
+        messageHandler = new Handler() {
+            final String INFO_MAIL_STATUS = "mail_status";
+            final String INFO_HALL_SENSOR_READING = "hall_reading";
+            final String INFO_GENERAL_OUTPUT = "general_output";
+            final String INFO_CONNECTION_STATUS = "connection_status";
+            String messageCategory;
+            String messageContent;
+            int messageDividerIndex;
+
             public void handleMessage(Message msg) {
                 if (msg.what == MESSAGE_READ) {
                     String readMessage = (String) msg.obj;
                     if (readMessage != null) {
                         readMessage = readMessage.trim();
-                        generalOutput.setText(readMessage);
-                        Log.d("BT MESSAGE", readMessage + " Size: " + readMessage.getBytes().length);
+                        messageDividerIndex = readMessage.indexOf(":");
+                        if (messageDividerIndex != -1) {
+                            messageCategory = readMessage.substring(0, messageDividerIndex);
+                            messageContent = readMessage.substring(messageDividerIndex + 1, readMessage.length());
+
+                            switch (messageCategory) {
+                                case INFO_GENERAL_OUTPUT:
+                                    generalOutput.setText(messageContent);
+                                    break;
+                                case INFO_MAIL_STATUS:
+                                    if(messageContent.equals("1")){
+                                        getGotMail.setText(R.string.new_mail);
+                                    } else {
+                                        getGotMail.setText(R.string.no_new_mail);
+                                    }
+                                    break;
+                                default:
+                                    generalOutput.setText(messageContent);
+                            }
+                        }
+//                        generalOutput.setText("Category: " + messageCategory + " - Content: " + messageContent);
+                        Log.d("BT MESSAGE", "Category: " + messageCategory + " - Content:" + messageContent + "ENDING");
                     }
                 }
                 if (msg.what == CONNECTING_STATUS) {
@@ -201,7 +230,8 @@ public class MainActivity extends AppCompatActivity {
             check.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    toggleLed(v);
+                    checkForMail(v);
+//                    toggleLed(v);
                 }
             });
 
@@ -299,6 +329,10 @@ public class MainActivity extends AppCompatActivity {
         connectedThread.write(REQUEST_STOP_HALL_READ);
     }
 
+    private void checkForMail(View v) {
+        connectedThread.write(REQUEST_MAIL_STATUS);
+    }
+
 
     final BroadcastReceiver blReceiver = new BroadcastReceiver() {
         @Override
@@ -347,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             fail = true;
                             BTSocket.close();
-                            mainHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
+                            messageHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
                                     .sendToTarget();
                         } catch (IOException e2) {
                             //insert code to deal with this
@@ -358,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
                         connectedThread = new ConnectedThread(BTSocket);
                         connectedThread.start();
 
-                        mainHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
+                        messageHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
                                 .sendToTarget();
                     }
                 }
@@ -406,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // маркер конца команды - вернуть ответ в главный поток
                     if (readed.contains("\n")) {
-                        mainHandler.obtainMessage(MESSAGE_READ, bytes, -1, readMessage.toString()).sendToTarget();
+                        messageHandler.obtainMessage(MESSAGE_READ, bytes, -1, readMessage.toString()).sendToTarget();
                         readMessage.setLength(0);
                     }
 

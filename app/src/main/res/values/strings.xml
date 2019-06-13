@@ -14,5 +14,8 @@
     <string name="placeholder_sensor_reading">"SensorReading"</string>
     <string name="placeholder_mailbuddy_connected">"MailBuddyConnected"</string>
 
+    <string name="no_new_mail">Nope</string>
+    <string name="new_mail">Fuck yeah!</string>
+
 
 </resources>
