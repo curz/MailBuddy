@@ -1,21 +1,22 @@
 <resources>
     <string name="app_name">MailBuddy</string>
     <string name="general_output">General output</string>
-    <string name="log_got_mail">Got mail: </string>
     <string name="log_sensor_reading">Sensor reading: </string>
     <string name="info_mailbuddy_connected">MailBuddy connected: </string>
 
-    <string name="button_check_for_mail">Check</string>
+    <string name="button_check_for_mail">Check for mail</string>
     <string name="button_show_paired_devices">Show paired devices</string>
-    <string name="button_start_reading_sensor">Start reading sensor</string>
-    <string name="button_stop_reading_sensor">Stop reading sensor</string>
+    <string name="button_toggle_reading_sensor">Toggle sensor reading</string>
+    <string name="button_mailbox_emptied">Mailbox emptied</string>
 
-    <string name="placeholder_got_mail">"GotMail"</string>
-    <string name="placeholder_sensor_reading">"SensorReading"</string>
-    <string name="placeholder_mailbuddy_connected">"MailBuddyConnected"</string>
+    <string name="placeholder_sensor_reading">-</string>
+    <string name="placeholder_mailbuddy_connected">-</string>
 
-    <string name="no_new_mail">Nope</string>
-    <string name="new_mail">Fuck yeah!</string>
+    <string name="no_new_mail">No new mail</string>
+    <string name="new_mail">"YOU'VE GOT MAIL!"</string>
+
+    <string name="shared_pref_mailbuddy_mac">mailbuddy_mac</string>
+    <string name="shared_pref_mailbuddy_name">mailbuddy_name</string>
 
 
 </resources>
